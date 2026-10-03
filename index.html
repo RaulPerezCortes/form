@@ -275,7 +275,7 @@
 <script>
   // Nombre de la persona: se lee de la URL (?nombre=Adrià) o usa el valor por defecto
   const params = new URLSearchParams(location.search);
-  const NOMBRE = (params.get('nombre') || 'Adrià').trim().slice(0, 40);
+  const NOMBRE = (params.get('nombre') || 'FLO').trim().slice(0, 40);
 
   document.title = '¿Quieres salir con ' + NOMBRE + '?';
   document.getElementById('nombreTitulo').textContent = NOMBRE;
