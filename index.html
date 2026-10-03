@@ -16,10 +16,29 @@
    &estilo=1..10  1 Noche · 2 Atardecer · 3 Minimal · 4 Neón · 5 Cuaderno
                   6 Arcade · 7 Bosque · 8 Océano · 9 Fiesta · 10 Terminal
    Sin parámetros: "¿Quieres mucho a FLO?" sin subtítulo
+   Enlace ofuscado: ?d=... (todo en un solo parámetro; se genera en /admin)
    &si=Texto del botón verde   &no=Texto del botón que huye
    Ej: ?pregunta=¿Quieres ir al cine|conmigo?&subtexto=Invito yo&estilo=4 */
-(function(){var e=new URLSearchParams(location.search).get('estilo');
-document.documentElement.dataset.estilo=/^([1-9]|10)$/.test(e)?e:'1';})();
+// Clave del ofuscado: debe ser IGUAL en /admin/index.html (cámbiala por la tuya)
+const CLAVE = 'cambia-esta-clave';
+const bytesClave = new TextEncoder().encode(CLAVE);
+const xor = b => b.map((v, i) => v ^ bytesClave[i % bytesClave.length]);
+function decodificar(s){
+  const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+  return JSON.parse(new TextDecoder().decode(xor(Uint8Array.from(bin, c => c.charCodeAt(0)))));
+}
+// Datos de la página: de ?d=... (ofuscado) o, si no hay, de los parámetros normales
+const DATOS = (function(){
+  const p = new URLSearchParams(location.search);
+  if (p.has('d')) {
+    try {
+      const o = decodificar(p.get('d'));
+      return { pregunta: o.p, subtexto: o.s, estilo: o.e, si: o.y, no: o.n };
+    } catch (e) {}
+  }
+  return { pregunta: p.get('pregunta'), subtexto: p.get('subtexto'), estilo: p.get('estilo'), si: p.get('si'), no: p.get('no') };
+})();
+document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estilo)) ? String(DATOS.estilo) : '1';
 </script>
 <style>
   /* ---------- Estilo 1 (por defecto): Noche ---------- */
@@ -471,7 +490,7 @@ document.documentElement.dataset.estilo=/^([1-9]|10)$/.test(e)?e:'1';})();
       <input type="text" id="nombre" placeholder="¿Cómo te llamas?" autocomplete="given-name">
 
       <label for="mensaje">Mensaje (opcional)</label>
-      <textarea id="mensaje" rows="3" placeholder="Déjame unas palabras..."></textarea>
+      <textarea id="mensaje" rows="3" placeholder="Escribe algo bonito..."></textarea>
 
       <button class="btn btn-primary send-btn" id="sendBtn" type="button">Enviar respuesta</button>
       <p class="confirm" id="confirmMsg" aria-live="polite"></p>
@@ -482,7 +501,7 @@ document.documentElement.dataset.estilo=/^([1-9]|10)$/.test(e)?e:'1';})();
 <script>
   const $ = id => document.getElementById(id);
   const params = new URLSearchParams(location.search);
-  const leer = (clave, defecto, max) => (params.get(clave) || defecto).trim().slice(0, max);
+  const leer = (clave, defecto, max) => String(DATOS[clave] || defecto).trim().slice(0, max);
 
   const PREGUNTA = leer('pregunta', '¿Quieres mucho a FLO?', 140);
   const SUBTEXTO = leer('subtexto', '', 220);   // vacío u omitido = sin subtítulo

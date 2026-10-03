@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Generador de enlaces</title>
+<style>
+  :root{
+    --bg: #f4f2ee; --card: #fff; --line: #e4e0d8;
+    --ink: #17171a; --muted: #66666e;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0; padding: 32px 20px;
+    background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  .wrap{
+    max-width: 1020px; margin: 0 auto;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px;
+  }
+  @media (max-width: 820px){ .wrap{ grid-template-columns: 1fr; } }
+  h1{ font-size: 24px; margin: 0 0 4px; }
+  .lead{ color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+  .panel{
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 24px;
+  }
+  label{ display: block; font-weight: 600; font-size: 14px; margin: 0 0 6px; }
+  .hint{ font-weight: 400; color: var(--muted); }
+  input, textarea, select{
+    width: 100%; font: inherit; font-size: 15px; color: var(--ink);
+    background: #faf9f7; border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 11px 13px; margin-bottom: 16px;
+  }
+  textarea{ resize: vertical; }
+  input:focus, textarea:focus, select:focus{ outline: 2px solid var(--ink); outline-offset: 1px; }
+  .row{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .out{ font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; margin-bottom: 12px; }
+  .acciones{ display: flex; gap: 10px; }
+  .btn{
+    flex: 1; text-align: center; text-decoration: none; cursor: pointer;
+    font: inherit; font-weight: 600; font-size: 15px; padding: 12px 16px;
+    border-radius: 10px; border: 1.5px solid var(--ink);
+    background: var(--ink); color: #fff;
+  }
+  .btn.sec{ background: transparent; color: var(--ink); }
+  .btn:focus-visible{ outline: 3px solid #7a7af0; outline-offset: 2px; }
+  .preview{ padding: 12px; }
+  iframe{
+    width: 100%; height: 600px; border: 0; border-radius: 10px;
+    background: #e9e6e0; display: block;
+  }
+  .nota{ color: var(--muted); font-size: 13px; margin: 14px 0 0; }
+</style>
+</head>
+<body>
+
+<h1>Generador de enlaces</h1>
+<p class="lead">Escribe el mensaje y copia el enlace: el texto va ofuscado dentro de la URL.</p>
+
+<div class="wrap">
+  <section class="panel">
+    <label for="pregunta">Pregunta <span class="hint">(usa | para saltar de línea)</span></label>
+    <textarea id="pregunta" rows="2" maxlength="140" placeholder="¿Quieres mucho a FLO?"></textarea>
+
+    <label for="subtexto">Subtexto <span class="hint">(opcional)</span></label>
+    <input id="subtexto" type="text" maxlength="220">
+
+    <label for="estilo">Estilo</label>
+    <select id="estilo">
+      <option value="1">1 · Noche</option>
+      <option value="2">2 · Atardecer</option>
+      <option value="3">3 · Minimal</option>
+      <option value="4">4 · Neón</option>
+      <option value="5">5 · Cuaderno</option>
+      <option value="6">6 · Arcade</option>
+      <option value="7">7 · Bosque</option>
+      <option value="8">8 · Océano</option>
+      <option value="9">9 · Fiesta</option>
+      <option value="10">10 · Terminal</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label for="si">Botón Sí</label>
+        <input id="si" type="text" maxlength="20" placeholder="Sí">
+      </div>
+      <div>
+        <label for="no">Botón No</label>
+        <input id="no" type="text" maxlength="20" placeholder="No">
+      </div>
+    </div>
+
+    <label for="enlace">Enlace</label>
+    <input id="enlace" class="out" type="text" readonly>
+    <div class="acciones">
+      <button class="btn" id="copiar" type="button">Copiar enlace</button>
+      <a class="btn sec" id="abrir" href="#" target="_blank" rel="noopener">Abrir</a>
+    </div>
+    <p class="nota">Ofuscar no es cifrar: la clave está en el código de la página, así que sirve para que el mensaje no se lea a simple vista, no para protegerlo.</p>
+  </section>
+
+  <section class="panel preview">
+    <iframe id="vista" title="Vista previa"></iframe>
+  </section>
+</div>
+
+<script>
+  // Debe ser IGUAL que CLAVE en index.html
+  const CLAVE = 'cambia-esta-clave';
+  const bytesClave = new TextEncoder().encode(CLAVE);
+
+  function codificar(obj){
+    const bytes = new TextEncoder().encode(JSON.stringify(obj))
+      .map((v, i) => v ^ bytesClave[i % bytesClave.length]);
+    let bin = '';
+    bytes.forEach(v => bin += String.fromCharCode(v));
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  const $ = id => document.getElementById(id);
+  // En web, el enlace apunta a la raíz del sitio; en local, a ../index.html
+  const raiz = /^https?:$/.test(location.protocol)
+    ? new URL('../', location.href).href
+    : new URL('../index.html', location.href).href;
+
+  function generar(){
+    const o = { e: $('estilo').value };
+    const campos = { p: 'pregunta', s: 'subtexto', y: 'si', n: 'no' };
+    for (const k in campos) {
+      const v = $(campos[k]).value.trim();
+      if (v) o[k] = v;
+    }
+    return raiz + '?d=' + codificar(o);
+  }
+
+  let temporizador;
+  function actualizar(){
+    const url = generar();
+    $('enlace').value = url;
+    $('abrir').href = url;
+    clearTimeout(temporizador);
+    temporizador = setTimeout(() => { $('vista').src = url; }, 300);
+  }
+
+  ['pregunta', 'subtexto', 'estilo', 'si', 'no'].forEach(id => {
+    $(id).addEventListener('input', actualizar);
+    $(id).addEventListener('change', actualizar);
+  });
+
+  $('copiar').addEventListener('click', async () => {
+    const btn = $('copiar');
+    try {
+      await navigator.clipboard.writeText($('enlace').value);
+      btn.textContent = 'Copiado';
+    } catch (e) {
+      $('enlace').select();
+      btn.textContent = 'Selecciona y copia (Ctrl+C)';
+    }
+    setTimeout(() => { btn.textContent = 'Copiar enlace'; }, 1800);
+  });
+
+  actualizar();
+</script>
+
+</body>
+</html>

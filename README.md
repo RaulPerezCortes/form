@@ -28,6 +28,16 @@ index.html?pregunta=¿Quieres ir al cine|conmigo?&subtexto=Invito yo&estilo=4&si
 
 Sin parámetros se muestra "¿Quieres mucho a FLO?" sin subtítulo.
 
+## Enlaces ofuscados y /admin
+
+Para que el mensaje no se lea en la URL, todos los datos pueden ir en un único parámetro: `?d=...`. La página lo decodifica y muestra lo mismo que con los parámetros normales (que siguen funcionando).
+
+`admin/index.html` es un generador: escribes pregunta, subtexto, estilo y textos de botones, ves una vista previa en directo y copias el enlace ya ofuscado.
+
+- El ofuscado es JSON + XOR con una clave + Base64 seguro para URL. La constante `CLAVE` debe ser **igual** en `index.html` y en `admin/index.html`, y conviene cambiarla por una propia.
+- Ofuscar no es cifrar: la clave está en el código de la página, así que sirve para que no se lea a simple vista, no para proteger el contenido.
+- `/admin` solo genera enlaces y lleva `noindex`, pero cualquiera que conozca la ruta puede abrirlo. Si quieres restringirlo, protégelo desde el hosting (por ejemplo, Cloudflare Access o contraseña en Netlify).
+
 ## Estilos
 
 | Id | Nombre | Look |
