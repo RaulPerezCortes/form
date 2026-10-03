@@ -3,30 +3,274 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>¿Quieres salir con Adrià?</title>
+<title>Una pregunta para ti</title>
+<meta property="og:title" content="Tengo una pregunta para ti">
+<meta property="og:description" content="Abre el enlace para descubrirla.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,700;1,700&family=Quicksand:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+/* Parámetros de la URL (todos opcionales):
+   ?pregunta=Texto de la pregunta   (usa | para saltar de línea)
+   &subtexto=Texto pequeño debajo   (puede ir vacío u omitirse)
+   &estilo=1..10  1 Noche · 2 Atardecer · 3 Minimal · 4 Neón · 5 Cuaderno
+                  6 Arcade · 7 Bosque · 8 Océano · 9 Fiesta · 10 Terminal
+   Sin parámetros: "¿Quieres mucho a FLO?" sin subtítulo
+   &si=Texto del botón verde   &no=Texto del botón que huye
+   Ej: ?pregunta=¿Quieres ir al cine|conmigo?&subtexto=Invito yo&estilo=4 */
+(function(){var e=new URLSearchParams(location.search).get('estilo');
+document.documentElement.dataset.estilo=/^([1-9]|10)$/.test(e)?e:'1';})();
+</script>
 <style>
+  /* ---------- Estilo 1 (por defecto): Noche ---------- */
   :root{
-    --plum: #2b1b2e;
-    --plum-deep: #1c1122;
-    --coral: #ff6b81;
-    --coral-deep: #e85570;
-    --gold: #ffd166;
-    --cream: #fdf6f0;
-    --mauve: #6b4c63;
+    --bg: radial-gradient(ellipse at top, #2b1b2e 0%, #1c1122 70%);
+    --card: rgba(253,246,240,.05);
+    --card-border: 1px solid rgba(255,209,102,.22);
+    --card-shadow: 0 30px 60px -20px rgba(0,0,0,.6);
+    --blur: 6px;
+    --text: #fdf6f0;
+    --muted: rgba(253,246,240,.72);
+    --accent: #ff6b81;
+    --accent2: #e85570;
+    --on-accent: #fff;
+    --taunt: #ffd166;
+    --f-title: 'Playfair Display', serif;
+    --f-body: 'Quicksand', sans-serif;
+    --t-style: italic;
+    --t-weight: 700;
+    --t-size: clamp(32px, 6vw, 48px);
+    --t-shadow: none;
+    --r-card: 28px;
+    --r-btn: 999px;
+    --btn-border: 0;
+    --btn-shadow: 0 12px 24px -8px rgba(232,85,112,.6);
+    --p-color: #ff6b81;
+    --p-op: .2;
+  }
+  /* ---------- Estilo 2: Atardecer ---------- */
+  :root[data-estilo="2"]{
+    --bg: linear-gradient(160deg, #ff9a8b 0%, #ff6a88 45%, #7b4fd6 100%);
+    --card: rgba(255,255,255,.18);
+    --card-border: 1px solid rgba(255,255,255,.45);
+    --card-shadow: 0 30px 60px -24px rgba(70,20,90,.5);
+    --blur: 16px;
+    --text: #fff;
+    --muted: rgba(255,255,255,.9);
+    --accent: #fff;
+    --accent2: #ffe3ec;
+    --on-accent: #b8245a;
+    --taunt: #fff3bf;
+    --f-title: 'Quicksand', sans-serif;
+    --t-style: normal;
+    --t-weight: 700;
+    --t-size: clamp(34px, 7vw, 54px);
+    --r-card: 36px;
+    --btn-shadow: 0 12px 24px -8px rgba(110,20,70,.45);
+    --p-color: #fff;
+    --p-op: .35;
+  }
+  /* ---------- Estilo 3: Minimal ---------- */
+  :root[data-estilo="3"]{
+    --bg: #f4f2ee;
+    --card: #fff;
+    --card-border: 1px solid #e4e0d8;
+    --card-shadow: 0 24px 50px -28px rgba(0,0,0,.25);
+    --blur: 0px;
+    --text: #17171a;
+    --muted: #66666e;
+    --accent: #17171a;
+    --accent2: #3a3a42;
+    --on-accent: #fff;
+    --taunt: #66666e;
+    --f-title: 'Space Grotesk', sans-serif;
+    --f-body: 'Space Grotesk', sans-serif;
+    --t-style: normal;
+    --t-weight: 700;
+    --t-size: clamp(30px, 6vw, 44px);
+    --r-card: 18px;
+    --r-btn: 12px;
+    --btn-shadow: 0 8px 18px -10px rgba(0,0,0,.5);
+    --p-op: 0;
+  }
+  /* ---------- Estilo 4: Neón ---------- */
+  :root[data-estilo="4"]{
+    --bg: radial-gradient(ellipse at 20% 0%, #2a0f4d 0%, transparent 55%), radial-gradient(ellipse at 90% 100%, #05353a 0%, transparent 55%), #0b0716;
+    --card: rgba(18,9,38,.72);
+    --card-border: 1px solid rgba(0,245,212,.4);
+    --card-shadow: 0 0 46px -10px rgba(0,245,212,.4), inset 0 0 28px -16px rgba(0,245,212,.5);
+    --blur: 8px;
+    --text: #f4f0ff;
+    --muted: rgba(244,240,255,.68);
+    --accent: #f72585;
+    --accent2: #b5179e;
+    --on-accent: #fff;
+    --taunt: #00f5d4;
+    --f-title: 'Space Grotesk', sans-serif;
+    --f-body: 'Space Grotesk', sans-serif;
+    --t-style: normal;
+    --t-weight: 700;
+    --t-size: clamp(30px, 6vw, 46px);
+    --t-shadow: 0 0 20px rgba(247,37,133,.6);
+    --r-card: 14px;
+    --r-btn: 10px;
+    --btn-shadow: 0 0 26px rgba(247,37,133,.6);
+    --p-color: #00f5d4;
+    --p-op: .35;
+  }
+  /* ---------- Estilo 5: Cuaderno ---------- */
+  :root[data-estilo="5"]{
+    --bg: #f3e9d8 repeating-linear-gradient(0deg, transparent 0 31px, rgba(140,107,63,.16) 31px 32px);
+    --card: #fffdf7;
+    --card-border: 2px solid #3b2f2f;
+    --card-shadow: 9px 9px 0 #3b2f2f;
+    --blur: 0px;
+    --text: #3b2f2f;
+    --muted: #6f5d4b;
+    --accent: #e0573d;
+    --accent2: #c8452d;
+    --on-accent: #fff;
+    --taunt: #a8452f;
+    --f-title: 'Caveat', cursive;
+    --f-body: 'Quicksand', sans-serif;
+    --t-style: normal;
+    --t-weight: 700;
+    --t-size: clamp(44px, 9vw, 68px);
+    --r-card: 6px;
+    --r-btn: 6px;
+    --btn-border: 2px solid #3b2f2f;
+    --btn-shadow: 4px 4px 0 #3b2f2f;
+    --p-color: #c8452d;
+    --p-op: .3;
+  }
+
+  /* ---------- Estilo 6: Arcade ---------- */
+  :root[data-estilo="6"]{
+    --bg: repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px), #14123a;
+    --card: #1d1a52;
+    --card-border: 3px solid #ffe14d;
+    --card-shadow: 8px 8px 0 #0a0924;
+    --blur: 0px;
+    --text: #f5f3ff;
+    --muted: #b9b4f0;
+    --accent: #3ddc84;
+    --accent2: #20b86a;
+    --on-accent: #0a0924;
+    --taunt: #ffe14d;
+    --f-title: 'Press Start 2P', monospace;
+    --f-body: 'Space Mono', monospace;
+    --t-style: normal;
+    --t-weight: 400;
+    --t-size: clamp(18px, 4.6vw, 28px);
+    --t-lh: 1.5;
+    --r-card: 0;
+    --r-btn: 0;
+    --btn-border: 3px solid #f5f3ff;
+    --btn-shadow: 4px 4px 0 #0a0924;
+    --p-color: #ffe14d;
+    --p-op: .3;
+  }
+  /* ---------- Estilo 7: Bosque ---------- */
+  :root[data-estilo="7"]{
+    --bg: linear-gradient(180deg, #143d2b 0%, #0c2a1e 100%);
+    --card: rgba(235,245,225,.07);
+    --card-border: 1px solid rgba(190,230,160,.25);
+    --card-shadow: 0 30px 60px -24px rgba(0,0,0,.6);
+    --blur: 6px;
+    --text: #eef6e4;
+    --muted: rgba(238,246,228,.74);
+    --accent: #a8d672;
+    --accent2: #78b04a;
+    --on-accent: #123222;
+    --taunt: #e9d27a;
+    --t-style: normal;
+    --r-card: 22px;
+    --r-btn: 14px;
+    --btn-shadow: 0 10px 22px -10px rgba(120,176,74,.6);
+    --p-color: #a8d672;
+    --p-op: .22;
+  }
+  /* ---------- Estilo 8: Océano ---------- */
+  :root[data-estilo="8"]{
+    --bg: linear-gradient(180deg, #bfe9ff 0%, #5db7e8 45%, #0e4a86 100%);
+    --card: rgba(6,48,90,.58);
+    --card-border: 1px solid rgba(255,255,255,.4);
+    --card-shadow: 0 30px 60px -24px rgba(0,30,70,.6);
+    --blur: 14px;
+    --text: #f2fbff;
+    --muted: rgba(242,251,255,.84);
+    --accent: #ffd24d;
+    --accent2: #ffb300;
+    --on-accent: #0a3560;
+    --taunt: #bfe9ff;
+    --f-title: 'Quicksand', sans-serif;
+    --t-style: normal;
+    --r-card: 30px;
+    --btn-shadow: 0 12px 24px -8px rgba(0,30,70,.55);
+    --p-color: #fff;
+    --p-op: .45;
+  }
+  /* ---------- Estilo 9: Fiesta ---------- */
+  :root[data-estilo="9"]{
+    --bg: #ffd23f;
+    --card: #fff;
+    --card-border: 3px solid #1a1a2e;
+    --card-shadow: 8px 8px 0 #1a1a2e;
+    --blur: 0px;
+    --text: #1a1a2e;
+    --muted: #4a4a68;
+    --accent: #3a86ff;
+    --accent2: #2667d9;
+    --on-accent: #fff;
+    --taunt: #d6336c;
+    --f-title: 'Space Grotesk', sans-serif;
+    --t-style: normal;
+    --t-size: clamp(32px, 7vw, 52px);
+    --r-card: 24px;
+    --r-btn: 14px;
+    --btn-border: 3px solid #1a1a2e;
+    --btn-shadow: 4px 4px 0 #1a1a2e;
+    --p-color: #ef476f;
+    --p-op: .5;
+  }
+  /* ---------- Estilo 10: Terminal ---------- */
+  :root[data-estilo="10"]{
+    --bg: #070b07;
+    --card: #0b120b;
+    --card-border: 1px solid #2f7a3a;
+    --card-shadow: 0 0 40px -14px rgba(63,255,100,.35);
+    --blur: 0px;
+    --text: #b8f5c0;
+    --muted: #6fb27a;
+    --accent: #3fff64;
+    --accent2: #2bd24d;
+    --on-accent: #031004;
+    --taunt: #3fff64;
+    --f-title: 'Space Mono', monospace;
+    --f-body: 'Space Mono', monospace;
+    --t-style: normal;
+    --t-size: clamp(26px, 5.2vw, 40px);
+    --t-shadow: 0 0 12px rgba(63,255,100,.4);
+    --r-card: 6px;
+    --r-btn: 4px;
+    --btn-border: 1px solid #3fff64;
+    --btn-shadow: 0 0 18px rgba(63,255,100,.35);
+    --p-color: #3fff64;
+    --p-op: .25;
   }
 
   *{ box-sizing: border-box; }
 
-  html, body{
-    margin: 0;
-    padding: 0;
+  html{
     min-height: 100%;
-    background: radial-gradient(ellipse at top, var(--plum) 0%, var(--plum-deep) 70%);
-    color: var(--cream);
-    font-family: 'Quicksand', sans-serif;
+    background: var(--bg);
+    background-attachment: fixed;
+  }
+  body{
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--f-body);
     overflow-x: hidden;
   }
 
@@ -39,27 +283,23 @@
     padding: 40px 20px;
   }
 
-  .hearts{
+  .particles{
     position: fixed;
     inset: 0;
     pointer-events: none;
     overflow: hidden;
     z-index: 0;
   }
-
-  .hearts span{
+  .particles span{
     position: absolute;
     bottom: -10%;
-    font-size: 22px;
-    color: var(--coral);
-    opacity: 0.18;
-    animation: float 14s linear infinite;
+    color: var(--p-color);
+    opacity: 0;
+    animation: float linear infinite;
   }
-
   @keyframes float{
-    0%{ transform: translateY(0) rotate(0deg); opacity: 0; }
-    10%{ opacity: 0.18; }
-    90%{ opacity: 0.18; }
+    0%{ transform: translateY(0) rotate(0); opacity: 0; }
+    10%, 90%{ opacity: var(--p-op); }
     100%{ transform: translateY(-115vh) rotate(25deg); opacity: 0; }
   }
 
@@ -68,330 +308,303 @@
     z-index: 1;
     width: 100%;
     max-width: 560px;
-    background: rgba(253, 246, 240, 0.04);
-    border: 1px solid rgba(255, 209, 102, 0.18);
-    border-radius: 28px;
-    padding: 52px 40px 44px;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+    background: var(--card);
+    border: var(--card-border);
+    border-radius: var(--r-card);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    padding: 56px 40px 44px;
     text-align: center;
+    animation: enter .6s ease both;
   }
-
-  .eyebrow{
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin: 0 0 14px;
-    opacity: 0.85;
+  @keyframes enter{
+    from{ opacity: 0; transform: translateY(14px); }
+    to{ opacity: 1; transform: none; }
   }
 
   h1{
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-weight: 700;
-    font-size: clamp(32px, 6vw, 48px);
-    line-height: 1.15;
-    margin: 0 0 12px;
+    font-family: var(--f-title);
+    font-style: var(--t-style);
+    font-weight: var(--t-weight);
+    font-size: var(--t-size);
+    line-height: var(--t-lh, 1.12);
+    text-shadow: var(--t-shadow);
+    margin: 0 0 14px;
+    overflow-wrap: anywhere;
   }
-
-  h1 span{
-    color: var(--coral);
-    font-style: normal;
-  }
-
   .subtext{
-    font-size: 16px;
-    color: rgba(253, 246, 240, 0.7);
-    margin: 0 0 38px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0 auto 40px;
+    max-width: 40ch;
   }
+  .subtext:empty{ display: none; }
+  .subtext:empty + .choice-row{ margin-top: 26px; }
 
+  /* ---------- Botones ---------- */
   .choice-row{
-    position: relative;
     display: flex;
     justify-content: center;
-    gap: 22px;
-    min-height: 140px;
     align-items: flex-start;
+    gap: 20px;
+    min-height: 150px;
   }
-
   .btn{
-    border: none;
-    border-radius: 999px;
-    font-family: 'Quicksand', sans-serif;
+    font-family: var(--f-body);
     font-weight: 700;
     font-size: 18px;
-    padding: 16px 38px;
+    line-height: 1;
+    min-width: 128px;
+    padding: 17px 36px;
+    border: var(--btn-border);
+    border-radius: var(--r-btn);
     cursor: pointer;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
   }
+  .btn:focus-visible{
+    outline: 3px solid var(--taunt);
+    outline-offset: 3px;
+  }
+  .btn-primary{
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--on-accent);
+    box-shadow: var(--btn-shadow);
+  }
+  .btn-primary:hover{ filter: brightness(1.06); }
+  .btn-primary:active{ transform: scale(.97); }
 
   .btn-yes{
-    background: linear-gradient(135deg, var(--coral), var(--coral-deep));
-    color: var(--cream);
-    box-shadow: 0 12px 24px -8px rgba(232, 85, 112, 0.6);
+    transform: scale(var(--grow, 1));
+    transform-origin: top center;
   }
-
-  .btn-yes:hover{
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 16px 30px -8px rgba(232, 85, 112, 0.75);
-  }
+  .btn-yes:hover{ transform: scale(calc(var(--grow, 1) * 1.05)); }
 
   .btn-no{
-    position: relative;
-    background: rgba(253, 246, 240, 0.08);
-    color: var(--cream);
-    border: 1px solid rgba(253, 246, 240, 0.35);
-    transition: transform 0.18s cubic-bezier(.2,.9,.3,1.3), left 0.18s cubic-bezier(.2,.9,.3,1.3), top 0.18s cubic-bezier(.2,.9,.3,1.3);
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid color-mix(in srgb, var(--text) 40%, transparent);
+    transition: transform .22s cubic-bezier(.2,.9,.3,1.25);
+    will-change: transform;
   }
-
-  #noZone{
-    position: relative;
-    width: 100%;
-    height: 140px;
-  }
-
-  #noBtn{
-    position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-  }
+  :root[data-estilo="5"] .btn-no{ border: 2px dashed var(--text); }
 
   .taunt{
-    display: block;
-    margin-top: 10px;
-    font-size: 13px;
-    color: var(--gold);
-    min-height: 18px;
-    opacity: 0.9;
+    min-height: 22px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--taunt);
+    text-align: center;
   }
 
+  /* ---------- Formulario ---------- */
   .panel{
-    margin-top: 34px;
+    margin-top: 32px;
     text-align: left;
-    animation: reveal 0.45s ease both;
+    animation: enter .45s ease both;
   }
-
-  @keyframes reveal{
-    from{ opacity: 0; transform: translateY(10px); }
-    to{ opacity: 1; transform: translateY(0); }
-  }
-
   .panel.hidden{ display: none; }
 
   label{
     display: block;
-    font-size: 13px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--gold);
+    font-size: 14px;
+    font-weight: 700;
     margin-bottom: 6px;
   }
-
   input, textarea{
     width: 100%;
-    background: rgba(253, 246, 240, 0.06);
-    border: 1px solid rgba(253, 246, 240, 0.25);
-    border-radius: 12px;
-    padding: 12px 14px;
-    color: var(--cream);
-    font-family: 'Quicksand', sans-serif;
-    font-size: 15px;
+    background: color-mix(in srgb, var(--text) 6%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--text) 25%, transparent);
+    border-radius: calc(var(--r-btn) * .6 + 4px);
+    padding: 13px 15px;
+    color: var(--text);
+    font-family: var(--f-body);
+    font-size: 16px;
     margin-bottom: 18px;
     resize: vertical;
   }
-
+  ::placeholder{ color: color-mix(in srgb, var(--text) 50%, transparent); }
   input:focus, textarea:focus{
-    outline: 2px solid var(--coral);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
-
-  .send-btn{
-    width: 100%;
-    background: linear-gradient(135deg, var(--gold), #f6a13a);
-    color: var(--plum-deep);
-    border: none;
-    border-radius: 999px;
-    padding: 14px 0;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    transition: transform 0.12s ease;
-  }
-
-  .send-btn:hover{ transform: translateY(-2px); }
-
+  .send-btn{ width: 100%; }
+  .send-btn:disabled{ opacity: .7; cursor: default; }
   .confirm{
-    margin-top: 20px;
-    font-size: 14px;
-    color: rgba(253,246,240,0.75);
+    margin: 18px 0 0;
+    font-size: 15px;
+    color: var(--muted);
     text-align: center;
   }
 
-  @media (prefers-reduced-motion: reduce){
-    .hearts span{ animation: none; display: none; }
-    .btn-no{ transition: none; }
-  }
-
   @media (max-width: 480px){
-    .card{ padding: 40px 22px 32px; }
-    .choice-row{ gap: 14px; }
-    .btn{ padding: 14px 26px; font-size: 16px; }
+    .card{ padding: 44px 22px 32px; }
+    .choice-row{ gap: 12px; }
+    .btn{ min-width: 0; padding: 15px 26px; font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .particles{ display: none; }
+    .card, .panel{ animation: none; }
+    .btn, .btn-no{ transition: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="hearts" id="hearts"></div>
+<div class="particles" id="particles" aria-hidden="true"></div>
 
-<div class="stage">
+<main class="stage">
   <div class="card">
-    <p class="eyebrow">Una pregunta importante</p>
-    <h1>¿Quieres salir<br>con <span id="nombreTitulo">Adrià</span>?</h1>
-    <p class="subtext">Solo hay una respuesta correcta. La otra... digamos que se lo piensa mejor.</p>
+    <h1 id="pregunta">¿Quieres mucho a FLO?</h1>
+    <p class="subtext" id="subtexto"></p>
 
-    <div class="choice-row">
-      <button class="btn btn-yes" id="yesBtn">Sí ❤️</button>
-      <div id="noZone">
-        <button class="btn btn-no" id="noBtn">No</button>
-        <span class="taunt" id="taunt"></span>
-      </div>
+    <div class="choice-row" id="choiceRow">
+      <button class="btn btn-primary btn-yes" id="yesBtn" type="button">Sí</button>
+      <button class="btn btn-no" id="noBtn" type="button">No</button>
     </div>
+    <p class="taunt" id="taunt" aria-live="polite"></p>
 
     <div class="panel hidden" id="formPanel">
       <label for="nombre">Tu nombre</label>
-      <input type="text" id="nombre" placeholder="¿Cómo te llamas?">
+      <input type="text" id="nombre" placeholder="¿Cómo te llamas?" autocomplete="given-name">
 
-      <label for="mensaje">Mensaje para <span id="nombreLabel">Adrià</span> (opcional)</label>
+      <label for="mensaje">Mensaje (opcional)</label>
       <textarea id="mensaje" rows="3" placeholder="Escribe algo bonito..."></textarea>
 
-      <button class="send-btn" id="sendBtn">Enviar respuesta 💌</button>
-      <p class="confirm" id="confirmMsg"></p>
+      <button class="btn btn-primary send-btn" id="sendBtn" type="button">Enviar respuesta</button>
+      <p class="confirm" id="confirmMsg" aria-live="polite"></p>
     </div>
   </div>
-</div>
+</main>
 
 <script>
-  // Nombre de la persona: se lee de la URL (?nombre=Adrià) o usa el valor por defecto
+  const $ = id => document.getElementById(id);
   const params = new URLSearchParams(location.search);
-  const NOMBRE = (params.get('nombre') || 'Adrià').trim().slice(0, 40);
+  const leer = (clave, defecto, max) => (params.get(clave) || defecto).trim().slice(0, max);
 
-  document.title = '¿Quieres salir con ' + NOMBRE + '?';
-  document.getElementById('nombreTitulo').textContent = NOMBRE;
-  document.getElementById('nombreLabel').textContent = NOMBRE;
+  const PREGUNTA = leer('pregunta', '¿Quieres mucho a FLO?', 140);
+  const SUBTEXTO = leer('subtexto', '', 220);   // vacío u omitido = sin subtítulo
+  const SI_TXT   = leer('si', 'Sí', 20);
+  const NO_TXT   = leer('no', 'No', 20);
+  const ESTILO   = document.documentElement.dataset.estilo;
 
-  // Corazones flotantes de fondo
-  const heartsContainer = document.getElementById('hearts');
-  for(let i=0;i<14;i++){
-    const h = document.createElement('span');
-    h.textContent = '♥';
-    h.style.left = Math.random()*100 + '%';
-    h.style.animationDelay = (Math.random()*14) + 's';
-    h.style.animationDuration = (10 + Math.random()*8) + 's';
-    h.style.fontSize = (14 + Math.random()*18) + 'px';
-    heartsContainer.appendChild(h);
-  }
-
-  // Botón "No" esquivo
-  const noBtn = document.getElementById('noBtn');
-  const noZone = document.getElementById('noZone');
-  const taunt = document.getElementById('taunt');
-
-  const frases = [
-    "¿Segura/o?",
-    "Casi...",
-    "No tan rápido",
-    "Inténtalo otra vez",
-    "Ese botón tiene vida propia",
-    "El botón No no existe hoy",
-    "Sigue esquivando, es su trabajo",
-    "Prueba con el Sí, va mejor"
-  ];
-
-  function fraseAleatoria(){
-    taunt.textContent = frases[Math.floor(Math.random()*frases.length)];
-  }
-
-  function moverBoton(){
-    const zoneRect = noZone.getBoundingClientRect();
-    const btnRect = noBtn.getBoundingClientRect();
-
-    const maxX = Math.max(zoneRect.width - btnRect.width, 0);
-    const maxY = Math.max(zoneRect.height - btnRect.height, 0);
-
-    const newX = Math.random() * maxX - maxX/2;
-    const newY = Math.random() * maxY;
-
-    noBtn.style.left = `calc(50% + ${newX}px)`;
-    noBtn.style.top = `${newY}px`;
-    fraseAleatoria();
-  }
-
-  // Escapa al acercarse el ratón (hover) y al intentar tocarlo (móvil)
-  noBtn.addEventListener('mouseenter', moverBoton);
-  noBtn.addEventListener('touchstart', function(e){
-    e.preventDefault();
-    moverBoton();
-  }, { passive: false });
-
-  // Por si alguna vez lo "alcanzan": también escapa al click, nunca se deja pulsar
-  noBtn.addEventListener('click', function(e){
-    e.preventDefault();
-    moverBoton();
+  // Siempre textContent (nunca innerHTML): el texto viene de la URL.
+  const h1 = $('pregunta');
+  h1.textContent = '';
+  PREGUNTA.split('|').forEach((linea, i) => {
+    if (i) h1.appendChild(document.createElement('br'));
+    h1.appendChild(document.createTextNode(linea.trim()));
   });
+  $('subtexto').textContent = SUBTEXTO;
+  $('yesBtn').textContent = SI_TXT;
+  $('noBtn').textContent = NO_TXT;
+  document.title = PREGUNTA.replace(/\|/g, ' ');
 
-  // Botón "Sí"
-  const yesBtn = document.getElementById('yesBtn');
-  const formPanel = document.getElementById('formPanel');
+  // Partículas de fondo (cada estilo tiene su símbolo; el 3 no lleva)
+  const SIMBOLOS = { 1: '♥', 2: '✦', 3: '', 4: '✦', 5: '✎', 6: '■', 7: '✿', 8: '○', 9: '●', 10: '>' };
+  const simbolo = SIMBOLOS[ESTILO];
+  if (simbolo) {
+    const cont = $('particles');
+    for (let i = 0; i < 14; i++) {
+      const s = document.createElement('span');
+      s.textContent = simbolo;
+      s.style.left = Math.random() * 100 + '%';
+      s.style.animationDelay = (-Math.random() * 14) + 's';
+      s.style.animationDuration = (10 + Math.random() * 8) + 's';
+      s.style.fontSize = (14 + Math.random() * 20) + 'px';
+      cont.appendChild(s);
+    }
+  }
 
-  yesBtn.addEventListener('click', function(){
+  // Botón que huye
+  const noBtn = $('noBtn'), yesBtn = $('yesBtn'), zona = $('choiceRow'), taunt = $('taunt');
+  const frases = [
+    'Casi...', 'No tan rápido', 'Inténtalo otra vez',
+    'Ese botón tiene vida propia', 'Hoy el No no funciona',
+    'Sigue esquivando, es su trabajo', 'Prueba con el otro, va mejor'
+  ];
+  let esquives = 0, tx = 0, ty = 0;
+
+  function mover(){
+    esquives++;
+    taunt.textContent = frases[Math.floor(Math.random() * frases.length)];
+    yesBtn.style.setProperty('--grow', Math.min(1 + esquives * 0.04, 1.3));
+
+    const z = zona.getBoundingClientRect();
+    const b = noBtn.getBoundingClientRect();
+    const y = yesBtn.getBoundingClientRect();
+    const nx = b.left - tx, ny = b.top - ty;          // posición natural (sin desplazamiento)
+    const pad = 24;
+    let elegido = null;
+
+    for (let i = 0; i < 14; i++) {
+      const x = (z.left - nx) + Math.random() * Math.max(z.width - b.width, 0);
+      const yy = (z.top - ny) + Math.random() * Math.max(z.height - b.height, 0);
+      const l = nx + x, t = ny + yy;
+      const choca = l < y.right + pad && l + b.width > y.left - pad &&
+                    t < y.bottom + pad && t + b.height > y.top - pad;
+      const cerca = Math.hypot(x - tx, yy - ty) < 80;
+      elegido = [x, yy];
+      if (!choca && !cerca) break;
+    }
+    [tx, ty] = elegido;
+    noBtn.style.transform = `translate(${tx}px, ${ty}px)`;
+  }
+
+  noBtn.addEventListener('mouseenter', mover);
+  noBtn.addEventListener('focus', mover);
+  noBtn.addEventListener('touchstart', e => { e.preventDefault(); mover(); }, { passive: false });
+  noBtn.addEventListener('click', e => { e.preventDefault(); mover(); });
+
+  // Botón de respuesta afirmativa
+  const formPanel = $('formPanel');
+  yesBtn.addEventListener('click', () => {
     formPanel.classList.remove('hidden');
     formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('nombre').focus({ preventScroll: true });
   });
 
-  // Envío del formulario (se manda por correo con FormSubmit)
-  const sendBtn = document.getElementById('sendBtn');
-  const confirmMsg = document.getElementById('confirmMsg');
-
+  // Envío por correo con FormSubmit
+  const sendBtn = $('sendBtn'), confirmMsg = $('confirmMsg');
   const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/raulperez22007@gmail.com';
 
-  sendBtn.addEventListener('click', async function(){
-    const nombre = document.getElementById('nombre').value.trim() || 'Alguien';
-    const mensaje = document.getElementById('mensaje').value.trim() || '(sin mensaje)';
+  sendBtn.addEventListener('click', async () => {
+    const nombre = $('nombre').value.trim() || 'Alguien';
+    const mensaje = $('mensaje').value.trim() || '(sin mensaje)';
 
     sendBtn.disabled = true;
     sendBtn.textContent = 'Enviando...';
     confirmMsg.textContent = '';
 
-    try{
+    try {
       const res = await fetch(FORMSUBMIT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           nombre: nombre,
           mensaje: mensaje,
-          respuesta: 'SÍ quiere salir con ' + NOMBRE,
-          _subject: '¡' + nombre + ' ha dicho que SÍ a salir con ' + NOMBRE + '!',
+          pregunta: PREGUNTA.replace(/\|/g, ' '),
+          respuesta: SI_TXT,
+          estilo: ESTILO,
+          _subject: '¡' + nombre + ' ha dicho que sí!',
           _template: 'table',
           _captcha: 'false'
         })
       });
-
       const data = await res.json().catch(() => ({}));
 
-      if(res.ok && String(data.success) === 'true'){
-        confirmMsg.textContent = '¡Enviado! Ya te ha llegado la respuesta.';
-        sendBtn.textContent = 'Enviado ✔';
+      if (res.ok && String(data.success) === 'true') {
+        confirmMsg.textContent = 'Enviado. Tu respuesta ya ha llegado.';
+        sendBtn.textContent = 'Enviado';
       } else {
-        confirmMsg.textContent = 'Hubo un problema al enviar. Inténtalo de nuevo.';
-        sendBtn.disabled = false;
-        sendBtn.textContent = 'Enviar respuesta 💌';
+        throw new Error('envio');
       }
-    }catch(err){
-      confirmMsg.textContent = 'No se ha podido enviar (revisa tu conexión).';
+    } catch (err) {
+      confirmMsg.textContent = 'No se ha podido enviar. Revisa tu conexión e inténtalo de nuevo.';
       sendBtn.disabled = false;
-      sendBtn.textContent = 'Enviar respuesta 💌';
+      sendBtn.textContent = 'Enviar respuesta';
     }
   });
 </script>
