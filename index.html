@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Quieres salir con Adrià?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum: #2b1b2e;
+    --plum-deep: #1c1122;
+    --coral: #ff6b81;
+    --coral-deep: #e85570;
+    --gold: #ffd166;
+    --cream: #fdf6f0;
+    --mauve: #6b4c63;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(ellipse at top, var(--plum) 0%, var(--plum-deep) 70%);
+    color: var(--cream);
+    font-family: 'Quicksand', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .stage{
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .hearts{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .hearts span{
+    position: absolute;
+    bottom: -10%;
+    font-size: 22px;
+    color: var(--coral);
+    opacity: 0.18;
+    animation: float 14s linear infinite;
+  }
+
+  @keyframes float{
+    0%{ transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%{ opacity: 0.18; }
+    90%{ opacity: 0.18; }
+    100%{ transform: translateY(-115vh) rotate(25deg); opacity: 0; }
+  }
+
+  .card{
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    background: rgba(253, 246, 240, 0.04);
+    border: 1px solid rgba(255, 209, 102, 0.18);
+    border-radius: 28px;
+    padding: 52px 40px 44px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+    text-align: center;
+  }
+
+  .eyebrow{
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 14px;
+    opacity: 0.85;
+  }
+
+  h1{
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(32px, 6vw, 48px);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  h1 span{
+    color: var(--coral);
+    font-style: normal;
+  }
+
+  .subtext{
+    font-size: 16px;
+    color: rgba(253, 246, 240, 0.7);
+    margin: 0 0 38px;
+  }
+
+  .choice-row{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    min-height: 140px;
+    align-items: flex-start;
+  }
+
+  .btn{
+    border: none;
+    border-radius: 999px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    padding: 16px 38px;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .btn-yes{
+    background: linear-gradient(135deg, var(--coral), var(--coral-deep));
+    color: var(--cream);
+    box-shadow: 0 12px 24px -8px rgba(232, 85, 112, 0.6);
+  }
+
+  .btn-yes:hover{
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 16px 30px -8px rgba(232, 85, 112, 0.75);
+  }
+
+  .btn-no{
+    position: relative;
+    background: rgba(253, 246, 240, 0.08);
+    color: var(--cream);
+    border: 1px solid rgba(253, 246, 240, 0.35);
+    transition: transform 0.18s cubic-bezier(.2,.9,.3,1.3), left 0.18s cubic-bezier(.2,.9,.3,1.3), top 0.18s cubic-bezier(.2,.9,.3,1.3);
+  }
+
+  #noZone{
+    position: relative;
+    width: 100%;
+    height: 140px;
+  }
+
+  #noBtn{
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+  }
+
+  .taunt{
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--gold);
+    min-height: 18px;
+    opacity: 0.9;
+  }
+
+  .panel{
+    margin-top: 34px;
+    text-align: left;
+    animation: reveal 0.45s ease both;
+  }
+
+  @keyframes reveal{
+    from{ opacity: 0; transform: translateY(10px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  .panel.hidden{ display: none; }
+
+  label{
+    display: block;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  input, textarea{
+    width: 100%;
+    background: rgba(253, 246, 240, 0.06);
+    border: 1px solid rgba(253, 246, 240, 0.25);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--cream);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 15px;
+    margin-bottom: 18px;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus{
+    outline: 2px solid var(--coral);
+    outline-offset: 2px;
+  }
+
+  .send-btn{
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), #f6a13a);
+    color: var(--plum-deep);
+    border: none;
+    border-radius: 999px;
+    padding: 14px 0;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.12s ease;
+  }
+
+  .send-btn:hover{ transform: translateY(-2px); }
+
+  .confirm{
+    margin-top: 20px;
+    font-size: 14px;
+    color: rgba(253,246,240,0.75);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hearts span{ animation: none; display: none; }
+    .btn-no{ transition: none; }
+  }
+
+  @media (max-width: 480px){
+    .card{ padding: 40px 22px 32px; }
+    .choice-row{ gap: 14px; }
+    .btn{ padding: 14px 26px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<div class="stage">
+  <div class="card">
+    <p class="eyebrow">Una pregunta importante</p>
+    <h1>¿Quieres salir<br>con <span id="nombreTitulo">Adrià</span>?</h1>
+    <p class="subtext">Solo hay una respuesta correcta. La otra... digamos que se lo piensa mejor.</p>
+
+    <div class="choice-row">
+      <button class="btn btn-yes" id="yesBtn">Sí ❤️</button>
+      <div id="noZone">
+        <button class="btn btn-no" id="noBtn">No</button>
+        <span class="taunt" id="taunt"></span>
+      </div>
+    </div>
+
+    <div class="panel hidden" id="formPanel">
+      <label for="nombre">Tu nombre</label>
+      <input type="text" id="nombre" placeholder="¿Cómo te llamas?">
+
+      <label for="mensaje">Mensaje para <span id="nombreLabel">Adrià</span> (opcional)</label>
+      <textarea id="mensaje" rows="3" placeholder="Escribe algo bonito..."></textarea>
+
+      <button class="send-btn" id="sendBtn">Enviar respuesta 💌</button>
+      <p class="confirm" id="confirmMsg"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Nombre de la persona: se lee de la URL (?nombre=Adrià) o usa el valor por defecto
+  const params = new URLSearchParams(location.search);
+  const NOMBRE = (params.get('nombre') || 'Adrià').trim().slice(0, 40);
+
+  document.title = '¿Quieres salir con ' + NOMBRE + '?';
+  document.getElementById('nombreTitulo').textContent = NOMBRE;
+  document.getElementById('nombreLabel').textContent = NOMBRE;
+
+  // Corazones flotantes de fondo
+  const heartsContainer = document.getElementById('hearts');
+  for(let i=0;i<14;i++){
+    const h = document.createElement('span');
+    h.textContent = '♥';
+    h.style.left = Math.random()*100 + '%';
+    h.style.animationDelay = (Math.random()*14) + 's';
+    h.style.animationDuration = (10 + Math.random()*8) + 's';
+    h.style.fontSize = (14 + Math.random()*18) + 'px';
+    heartsContainer.appendChild(h);
+  }
+
+  // Botón "No" esquivo
+  const noBtn = document.getElementById('noBtn');
+  const noZone = document.getElementById('noZone');
+  const taunt = document.getElementById('taunt');
+
+  const frases = [
+    "¿Segura/o?",
+    "Casi...",
+    "No tan rápido",
+    "Inténtalo otra vez",
+    "Ese botón tiene vida propia",
+    "El botón No no existe hoy",
+    "Sigue esquivando, es su trabajo",
+    "Prueba con el Sí, va mejor"
+  ];
+
+  function fraseAleatoria(){
+    taunt.textContent = frases[Math.floor(Math.random()*frases.length)];
+  }
+
+  function moverBoton(){
+    const zoneRect = noZone.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+
+    const maxX = Math.max(zoneRect.width - btnRect.width, 0);
+    const maxY = Math.max(zoneRect.height - btnRect.height, 0);
+
+    const newX = Math.random() * maxX - maxX/2;
+    const newY = Math.random() * maxY;
+
+    noBtn.style.left = `calc(50% + ${newX}px)`;
+    noBtn.style.top = `${newY}px`;
+    fraseAleatoria();
+  }
+
+  // Escapa al acercarse el ratón (hover) y al intentar tocarlo (móvil)
+  noBtn.addEventListener('mouseenter', moverBoton);
+  noBtn.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    moverBoton();
+  }, { passive: false });
+
+  // Por si alguna vez lo "alcanzan": también escapa al click, nunca se deja pulsar
+  noBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    moverBoton();
+  });
+
+  // Botón "Sí"
+  const yesBtn = document.getElementById('yesBtn');
+  const formPanel = document.getElementById('formPanel');
+
+  yesBtn.addEventListener('click', function(){
+    formPanel.classList.remove('hidden');
+    formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // Envío del formulario (se manda por correo con FormSubmit)
+  const sendBtn = document.getElementById('sendBtn');
+  const confirmMsg = document.getElementById('confirmMsg');
+
+  const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/raulperez22007@gmail.com';
+
+  sendBtn.addEventListener('click', async function(){
+    const nombre = document.getElementById('nombre').value.trim() || 'Alguien';
+    const mensaje = document.getElementById('mensaje').value.trim() || '(sin mensaje)';
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Enviando...';
+    confirmMsg.textContent = '';
+
+    try{
+      const res = await fetch(FORMSUBMIT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          nombre: nombre,
+          mensaje: mensaje,
+          respuesta: 'SÍ quiere salir con ' + NOMBRE,
+          _subject: '¡' + nombre + ' ha dicho que SÍ a salir con ' + NOMBRE + '!',
+          _template: 'table',
+          _captcha: 'false'
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if(res.ok && String(data.success) === 'true'){
+        confirmMsg.textContent = '¡Enviado! Ya te ha llegado la respuesta.';
+        sendBtn.textContent = 'Enviado ✔';
+      } else {
+        confirmMsg.textContent = 'Hubo un problema al enviar. Inténtalo de nuevo.';
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Enviar respuesta 💌';
+      }
+    }catch(err){
+      confirmMsg.textContent = 'No se ha podido enviar (revisa tu conexión).';
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Enviar respuesta 💌';
+    }
+  });
+</script>
+
+</body>
+</html>
