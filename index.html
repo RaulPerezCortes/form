@@ -23,11 +23,23 @@
 const CLAVE = 'cambia-esta-clave';
 const bytesClave = new TextEncoder().encode(CLAVE);
 const xor = b => b.map((v, i) => v ^ bytesClave[i % bytesClave.length]);
+const TIPOS_COMPACTOS=['text','email','tel','number','date','time','url','textarea','select','radio','checkbox'];
+function normalizarConfiguracion(raw){
+  if(!Array.isArray(raw) || raw[0]!==3) return raw;
+  let i=2, flags=raw[1]||0, leer=bit=>flags&bit?raw[i++]:'';
+  const config={v:3,p:leer(1),s:leer(2),e:leer(4)||'1',m:flags&8?'choice':'form',y:leer(16),n:leer(32),b:leer(64),ok:leer(128),f:[]};
+  if(flags&256) config.f=(raw[i]||[]).map(x=>{
+    if(!Array.isArray(x)) return {};
+    let j=2,bits=x[1]||0,leerCampo=bit=>bits&bit?x[j++]:'';
+    return {t:TIPOS_COMPACTOS[x[0]]||'text',l:leerCampo(1),n:leerCampo(2),ph:leerCampo(4),h:leerCampo(8),r:!!(bits&16),o:leerCampo(32)||[],minLength:leerCampo(64),maxLength:leerCampo(128),pattern:leerCampo(256),rows:leerCampo(512),min:leerCampo(1024),max:leerCampo(2048),step:leerCampo(4096)};
+  });
+  return config;
+}
 function decodificar(s){
   const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
   const bytes = xor(Uint8Array.from(bin, c => c.charCodeAt(0)));
-  try { return JSON.parse(new TextDecoder().decode(bytes)); }
-  catch { const codes=[]; for(let i=0;i<bytes.length;i+=2) codes.push((bytes[i]<<8)|bytes[i+1]); const binario=descomprimir(codes); return JSON.parse(new TextDecoder().decode(Uint8Array.from(binario, c=>c.charCodeAt(0)))); }
+  try { return normalizarConfiguracion(JSON.parse(new TextDecoder().decode(bytes))); }
+  catch { const codes=[]; for(let i=0;i<bytes.length;i+=2) codes.push((bytes[i]<<8)|bytes[i+1]); const binario=descomprimir(codes); return normalizarConfiguracion(JSON.parse(new TextDecoder().decode(Uint8Array.from(binario, c=>c.charCodeAt(0))))); }
 }
 function descomprimir(codes){
   if(!codes.length) return ''; const dict=new Map; for(let i=0;i<256;i++) dict.set(i,String.fromCharCode(i));
@@ -40,12 +52,12 @@ const DATOS = (function(){
   if (p.has('d')) {
     try {
       const o = decodificar(p.get('d'));
-      return o.v === 2 ? o : { pregunta: o.p, subtexto: o.s, estilo: o.e, si: o.y, no: o.n };
+      return o.v === 2 || o.v === 3 ? o : { pregunta: o.p, subtexto: o.s, estilo: o.e, si: o.y, no: o.n };
     } catch (e) {}
   }
   return { pregunta: p.get('pregunta'), subtexto: p.get('subtexto'), estilo: p.get('estilo'), si: p.get('si'), no: p.get('no') };
 })();
-const ESTILO_URL = DATOS.v === 2 ? DATOS.e : DATOS.estilo;
+const ESTILO_URL = DATOS.v === 2 || DATOS.v === 3 ? DATOS.e : DATOS.estilo;
 document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTILO_URL)) ? String(ESTILO_URL) : '1';
 </script>
 <style>
@@ -568,7 +580,7 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
   const NO_TXT   = leer('no', 'No', 20);
   const ESTILO   = document.documentElement.dataset.estilo;
 
-  if (DATOS.v === 2) {
+  if (DATOS.v === 2 || DATOS.v === 3) {
     const config = DATOS;
     const limpio = (v, max = 180) => String(v || '').trim().slice(0, max);
     const titulo = limpio(config.p, 180) || '¿Quieres mucho a FLO?';
