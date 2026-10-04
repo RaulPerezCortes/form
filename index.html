@@ -537,6 +537,8 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
   .field label{ margin-bottom:7px; }
   .field-help{ display:block; color:var(--muted); font-size:13px; margin:-2px 0 7px; }
   select{ width:100%; appearance:auto; background:color-mix(in srgb, var(--text) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius:calc(var(--r-btn) * .6 + 4px); padding:13px 15px; color:var(--text); font:inherit; font-size:16px; color-scheme:dark; }
+  /* En móvil los selectores nativos de fecha y hora pueden crecer más que el resto. */
+  input:not([type="checkbox"]):not([type="radio"]), select{ height:48px; }
   option, optgroup{ background:var(--card); color:var(--text); font-family:var(--f-body); }
   option:checked{ background:var(--accent); color:var(--on-accent); }
   :root[data-estilo="3"] select, :root[data-estilo="5"] select, :root[data-estilo="9"] select, :root[data-estilo="12"] select, :root[data-estilo="18"] select, :root[data-estilo="20"] select{ color-scheme:light; }
@@ -642,7 +644,14 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
       catch { confirm.textContent='No se ha podido enviar. Revisa tu conexión e inténtalo de nuevo.'; send.disabled=false; send.textContent=limpio(config.b,60)||'Enviar respuesta'; }
     });
   } else {
-    $('contenido').innerHTML = '<div class="choice-row" id="choiceRow"><button class="btn btn-primary btn-yes" id="yesBtn" type="button">Sí</button><button class="btn btn-no" id="noBtn" type="button">No</button></div><p class="taunt" id="taunt" aria-live="polite"></p><div class="panel hidden" id="formPanel"><label for="nombre">Tu nombre</label><input type="text" id="nombre" placeholder="¿Cómo te llamas?" autocomplete="given-name"><label for="mensaje">Mensaje (opcional)</label><textarea id="mensaje" rows="3" placeholder="Deja unas palabras..."></textarea><button class="btn btn-primary send-btn" id="sendBtn" type="button">Enviar respuesta</button><p class="confirm" id="confirmMsg" aria-live="polite"></p></div>';
+    const sinFormulario = !location.search;
+    if (sinFormulario) {
+      $('pregunta').textContent = 'Abre el enlace completo';
+      $('subtexto').textContent = 'Para ver el formulario, abre el enlace entero en tu navegador.';
+      $('contenido').innerHTML = '<p class="confirm">Algunas aplicaciones, como WhatsApp, muestran solo una parte de los enlaces largos.</p>';
+      document.title = 'Abre el enlace completo';
+    } else {
+      $('contenido').innerHTML = '<div class="choice-row" id="choiceRow"><button class="btn btn-primary btn-yes" id="yesBtn" type="button">Sí</button><button class="btn btn-no" id="noBtn" type="button">No</button></div><p class="taunt" id="taunt" aria-live="polite"></p><div class="panel hidden" id="formPanel"><label for="nombre">Tu nombre</label><input type="text" id="nombre" placeholder="¿Cómo te llamas?" autocomplete="given-name"><label for="mensaje">Mensaje (opcional)</label><textarea id="mensaje" rows="3" placeholder="Deja unas palabras..."></textarea><button class="btn btn-primary send-btn" id="sendBtn" type="button">Enviar respuesta</button><p class="confirm" id="confirmMsg" aria-live="polite"></p></div>';
 
   // Siempre textContent (nunca innerHTML): el texto viene de la URL.
   const h1 = $('pregunta');
@@ -760,6 +769,7 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
       sendBtn.textContent = 'Enviar respuesta';
     }
   });
+    }
   }
 </script>
 
