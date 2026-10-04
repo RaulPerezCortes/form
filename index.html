@@ -540,15 +540,32 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
   .field label{ margin-bottom:7px; }
   .field-help{ display:block; color:var(--muted); font-size:13px; margin:-2px 0 7px; }
   select{ width:100%; max-width:100%; min-width:0; min-inline-size:0; appearance:auto; background:color-mix(in srgb, var(--text) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius:calc(var(--r-btn) * .6 + 4px); padding:13px 15px; color:var(--text); font:inherit; font-size:16px; color-scheme:dark; }
-  /* Safari en iOS da un ancho intrínseco a fecha/hora que puede ignorar el 100%. */
+  /* Altura fija igual para todos los campos de una línea */
   input:not([type="checkbox"]):not([type="radio"]), select{ height:48px; }
+
+  /* Punto 2: dentro de .field el espaciado lo pone .field, no cada control */
+  .field input, .field textarea, .field select{ margin-bottom:0; }
+
+  /* Punto 1: Safari en iOS da a fecha/hora un estilo y ancho intrínseco propios.
+     appearance:none lo quita para que se comporten como un input de texto. */
   input[type="date"], input[type="time"]{
+    -webkit-appearance:none;
+    appearance:none;
     display:block;
     inline-size:100%;
     max-inline-size:100%;
     min-inline-size:0;
     min-width:0;
+    line-height:normal;
+    text-align:left;
+    color-scheme:dark;
   }
+  :root[data-estilo="3"] input[type="date"], :root[data-estilo="3"] input[type="time"],
+  :root[data-estilo="5"] input[type="date"], :root[data-estilo="5"] input[type="time"],
+  :root[data-estilo="9"] input[type="date"], :root[data-estilo="9"] input[type="time"],
+  :root[data-estilo="12"] input[type="date"], :root[data-estilo="12"] input[type="time"],
+  :root[data-estilo="18"] input[type="date"], :root[data-estilo="18"] input[type="time"],
+  :root[data-estilo="20"] input[type="date"], :root[data-estilo="20"] input[type="time"]{ color-scheme:light; }
   input[type="date"]::-webkit-date-and-time-value,
   input[type="time"]::-webkit-date-and-time-value{ min-width:0; text-align:left; }
   input[type="date"]::-webkit-datetime-edit,
