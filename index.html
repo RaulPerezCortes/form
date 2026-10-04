@@ -604,6 +604,13 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
 
 <script>
   const $ = id => document.getElementById(id);
+  // Centra un elemento haciendo scroll SOLO en esta página.
+  // scrollIntoView también mueve la página padre cuando esto va dentro de un iframe (vista previa del admin).
+  const irA = el => {
+    const r = el.getBoundingClientRect();
+    const top = window.scrollY + r.top - (window.innerHeight - r.height) / 2;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  };
   const params = new URLSearchParams(location.search);
   const leer = (clave, defecto, max) => String(DATOS[clave] || defecto).trim().slice(0, max);
 
@@ -662,7 +669,7 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
       const taunt=document.createElement('p'); taunt.className='taunt'; row.append(yes,no); destino.append(row,taunt,form);
       let turns=0; const move=()=>{turns++; yes.style.setProperty('--grow',Math.min(1+turns*.04,1.3)); no.style.transform='translate('+(Math.random()*120-60)+'px,'+(Math.random()*70-25)+'px)'; taunt.textContent=['Casi...','No tan rápido','Prueba con el otro'][turns%3];};
       ['mouseenter','focus','click'].forEach(ev=>no.addEventListener(ev,move)); no.addEventListener('touchstart',e=>{e.preventDefault();move()},{passive:false});
-      yes.addEventListener('click',()=>{form.classList.remove('hidden');form.scrollIntoView({behavior:'smooth',block:'center'});form.querySelector('input,textarea,select')?.focus({preventScroll:true});});
+      yes.addEventListener('click',()=>{form.classList.remove('hidden');irA(form);form.querySelector('input,textarea,select')?.focus({preventScroll:true});});
     } else destino.append(form);
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -756,7 +763,7 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
   const formPanel = $('formPanel');
   yesBtn.addEventListener('click', () => {
     formPanel.classList.remove('hidden');
-    formPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    irA(formPanel);
     $('nombre').focus({ preventScroll: true });
   });
 
