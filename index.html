@@ -509,6 +509,9 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
   }
   input, textarea{
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-inline-size: 0;
     background: color-mix(in srgb, var(--text) 6%, transparent);
     border: 1.5px solid color-mix(in srgb, var(--text) 25%, transparent);
     border-radius: calc(var(--r-btn) * .6 + 4px);
@@ -532,13 +535,24 @@ document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTI
     color: var(--muted);
     text-align: center;
   }
-  .formulario-dinamico{ margin-top:28px; text-align:left; }
-  .field{ margin-bottom:18px; }
+  .formulario-dinamico{ margin-top:28px; min-width:0; text-align:left; }
+  .field{ min-width:0; margin-bottom:18px; }
   .field label{ margin-bottom:7px; }
   .field-help{ display:block; color:var(--muted); font-size:13px; margin:-2px 0 7px; }
-  select{ width:100%; appearance:auto; background:color-mix(in srgb, var(--text) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius:calc(var(--r-btn) * .6 + 4px); padding:13px 15px; color:var(--text); font:inherit; font-size:16px; color-scheme:dark; }
-  /* En móvil los selectores nativos de fecha y hora pueden crecer más que el resto. */
+  select{ width:100%; max-width:100%; min-width:0; min-inline-size:0; appearance:auto; background:color-mix(in srgb, var(--text) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius:calc(var(--r-btn) * .6 + 4px); padding:13px 15px; color:var(--text); font:inherit; font-size:16px; color-scheme:dark; }
+  /* Safari en iOS da un ancho intrínseco a fecha/hora que puede ignorar el 100%. */
   input:not([type="checkbox"]):not([type="radio"]), select{ height:48px; }
+  input[type="date"], input[type="time"]{
+    display:block;
+    inline-size:100%;
+    max-inline-size:100%;
+    min-inline-size:0;
+    min-width:0;
+  }
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value{ min-width:0; text-align:left; }
+  input[type="date"]::-webkit-datetime-edit,
+  input[type="time"]::-webkit-datetime-edit{ padding:0; }
   option, optgroup{ background:var(--card); color:var(--text); font-family:var(--f-body); }
   option:checked{ background:var(--accent); color:var(--on-accent); }
   :root[data-estilo="3"] select, :root[data-estilo="5"] select, :root[data-estilo="9"] select, :root[data-estilo="12"] select, :root[data-estilo="18"] select, :root[data-estilo="20"] select{ color-scheme:light; }
