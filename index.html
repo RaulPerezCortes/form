@@ -25,7 +25,14 @@ const bytesClave = new TextEncoder().encode(CLAVE);
 const xor = b => b.map((v, i) => v ^ bytesClave[i % bytesClave.length]);
 function decodificar(s){
   const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
-  return JSON.parse(new TextDecoder().decode(xor(Uint8Array.from(bin, c => c.charCodeAt(0)))));
+  const bytes = xor(Uint8Array.from(bin, c => c.charCodeAt(0)));
+  try { return JSON.parse(new TextDecoder().decode(bytes)); }
+  catch { const codes=[]; for(let i=0;i<bytes.length;i+=2) codes.push((bytes[i]<<8)|bytes[i+1]); const binario=descomprimir(codes); return JSON.parse(new TextDecoder().decode(Uint8Array.from(binario, c=>c.charCodeAt(0)))); }
+}
+function descomprimir(codes){
+  if(!codes.length) return ''; const dict=new Map; for(let i=0;i<256;i++) dict.set(i,String.fromCharCode(i));
+  let next=256, w=dict.get(codes[0]), out=w;
+  for(let i=1;i<codes.length;i++){ const k=codes[i], entry=dict.get(k) || (k===next ? w+w[0] : ''); if(!entry) throw Error('datos'); out+=entry; dict.set(next++,w+entry[0]); w=entry; } return out;
 }
 // Datos de la página: de ?d=... (ofuscado) o, si no hay, de los parámetros normales
 const DATOS = (function(){
@@ -33,12 +40,13 @@ const DATOS = (function(){
   if (p.has('d')) {
     try {
       const o = decodificar(p.get('d'));
-      return { pregunta: o.p, subtexto: o.s, estilo: o.e, si: o.y, no: o.n };
+      return o.v === 2 ? o : { pregunta: o.p, subtexto: o.s, estilo: o.e, si: o.y, no: o.n };
     } catch (e) {}
   }
   return { pregunta: p.get('pregunta'), subtexto: p.get('subtexto'), estilo: p.get('estilo'), si: p.get('si'), no: p.get('no') };
 })();
-document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estilo)) ? String(DATOS.estilo) : '1';
+const ESTILO_URL = DATOS.v === 2 ? DATOS.e : DATOS.estilo;
+document.documentElement.dataset.estilo = /^([1-9]|1[0-9]|20)$/.test(String(ESTILO_URL)) ? String(ESTILO_URL) : '1';
 </script>
 <style>
   /* ---------- Estilo 1 (por defecto): Noche ---------- */
@@ -278,6 +286,60 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
     --p-op: .25;
   }
 
+  /* ---------- Estilo 11: Aurora ---------- */
+  :root[data-estilo="11"]{
+    --bg: radial-gradient(circle at 15% 15%,#56e0c2 0%,transparent 30%),radial-gradient(circle at 85% 20%,#9a63ff 0%,transparent 34%),radial-gradient(circle at 50% 100%,#1473b8 0%,transparent 45%),#071529;
+    --card:rgba(7,20,45,.55);--card-border:1px solid rgba(178,255,236,.35);--card-shadow:0 30px 70px -18px #030916;--blur:16px;--text:#effffd;--muted:#b8d9e0;--accent:#72f2c3;--accent2:#49aee7;--on-accent:#04251f;--taunt:#e8b8ff;--f-title:'Space Grotesk',sans-serif;--r-card:30px;--p-color:#bffff2;--p-op:.5;
+  }
+  :root[data-estilo="11"] body{background:var(--bg);background-size:150% 150%;animation:aurora 12s ease-in-out infinite alternate}
+  @keyframes aurora{to{background-position:100% 80%}}
+  /* ---------- Estilo 12: Sakura ---------- */
+  :root[data-estilo="12"]{
+    --bg:linear-gradient(150deg,#fff2f7 0%,#f6b6d0 52%,#9a668e 100%);--card:rgba(255,255,255,.62);--card-border:1px solid rgba(145,58,103,.25);--card-shadow:0 28px 60px -22px rgba(92,35,68,.45);--blur:12px;--text:#54223f;--muted:#85536d;--accent:#d84985;--accent2:#a72d6a;--on-accent:#fff;--taunt:#b22f70;--f-title:'Playfair Display',serif;--t-style:italic;--r-card:32px;--p-color:#d94f8a;--p-op:.5;
+  }
+  /* ---------- Estilo 13: Desierto ---------- */
+  :root[data-estilo="13"]{
+    --bg:linear-gradient(165deg,#14253c 0%,#d86c42 52%,#f4c56f 100%);--card:rgba(55,30,30,.52);--card-border:1px solid rgba(255,229,170,.4);--card-shadow:0 28px 60px -20px rgba(35,14,20,.58);--blur:9px;--text:#fff3d4;--muted:#f4d59a;--accent:#ffe080;--accent2:#e59a35;--on-accent:#4b2816;--taunt:#fff1bb;--f-title:'Caveat',cursive;--t-style:normal;--t-size:clamp(42px,8vw,64px);--r-card:18px;--p-color:#ffe2a4;--p-op:.42;
+  }
+  /* ---------- Estilo 14: Cyber City ---------- */
+  :root[data-estilo="14"]{
+    --bg:linear-gradient(180deg,#080615 0%,#171044 62%,#091b37 100%);--card:rgba(12,8,35,.76);--card-border:1px solid #ff55cb;--card-shadow:0 0 0 1px rgba(68,224,255,.45),0 0 42px -9px #ec37c5;--blur:10px;--text:#f5efff;--muted:#b9b2df;--accent:#ff4cc5;--accent2:#7d5cff;--on-accent:#fff;--taunt:#52efff;--f-title:'Space Grotesk',sans-serif;--t-shadow:0 0 16px rgba(255,76,197,.75);--r-card:8px;--r-btn:5px;--btn-shadow:0 0 25px rgba(255,76,197,.62);--p-color:#52efff;--p-op:.55;
+  }
+  /* ---------- Estilo 15: Galaxia ---------- */
+  :root[data-estilo="15"]{
+    --bg:radial-gradient(circle at 20% 20%,#8b4bce 0%,transparent 25%),radial-gradient(circle at 85% 70%,#2e83c9 0%,transparent 28%),#08091e;--card:rgba(13,14,47,.68);--card-border:1px solid rgba(194,183,255,.38);--card-shadow:0 30px 70px -18px #000;--blur:14px;--text:#f5f1ff;--muted:#c7bee4;--accent:#f8d66d;--accent2:#d57cee;--on-accent:#28133c;--taunt:#a9e8ff;--f-title:'Playfair Display',serif;--r-card:26px;--p-color:#fff;--p-op:.7;
+  }
+  /* ---------- Estilo 16: Disco ---------- */
+  :root[data-estilo="16"]{
+    --bg:linear-gradient(125deg,#ff2a70,#ff9f1c,#ffe66d,#27d7c7,#7467f0,#ff2a70);--card:rgba(255,255,255,.18);--card-border:2px solid rgba(255,255,255,.56);--card-shadow:0 26px 65px -20px #6e1247;--blur:15px;--text:#fff;--muted:#fff5fa;--accent:#fff;--accent2:#ffe4f0;--on-accent:#b81860;--taunt:#fff;--f-title:'Space Grotesk',sans-serif;--r-card:34px;--p-color:#fff;--p-op:.7;
+  }
+  :root[data-estilo="16"] body{background:var(--bg);background-size:400% 400%;animation:rainbowMove 13s ease infinite}
+  @keyframes rainbowMove{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  /* ---------- Estilo 17: Laguna ---------- */
+  :root[data-estilo="17"]{
+    --bg:linear-gradient(165deg,#9affec 0%,#2cb9d8 38%,#0764a0 100%);--card:rgba(0,57,107,.48);--card-border:1px solid rgba(223,255,255,.6);--card-shadow:0 28px 70px -22px #033e70;--blur:14px;--text:#efffff;--muted:#c7f4f8;--accent:#baff64;--accent2:#69cf62;--on-accent:#073e4a;--taunt:#fff6a4;--f-title:'Quicksand',sans-serif;--r-card:30px;--p-color:#e6ffff;--p-op:.62;
+  }
+  :root[data-estilo="17"] body{background:var(--bg);background-size:140% 140%;animation:waterMove 9s ease-in-out infinite alternate}
+  @keyframes waterMove{to{background-position:100% 100%}}
+  /* ---------- Estilo 18: Nubes ---------- */
+  :root[data-estilo="18"]{
+    --bg:radial-gradient(circle at 18% 25%,#fff 0 8%,transparent 9%),radial-gradient(circle at 70% 15%,#fff 0 11%,transparent 12%),linear-gradient(145deg,#79c9ff,#b7e8ff 55%,#eafaff);--card:rgba(255,255,255,.68);--card-border:1px solid rgba(57,127,190,.25);--card-shadow:0 28px 55px -20px rgba(40,115,180,.35);--blur:10px;--text:#17466d;--muted:#46799e;--accent:#3c9bea;--accent2:#1b75cb;--on-accent:#fff;--taunt:#3c86c0;--f-title:'Quicksand',sans-serif;--r-card:40px;--p-color:#fff;--p-op:.85;
+  }
+  :root[data-estilo="18"] body{background:var(--bg);background-size:180% 180%;animation:cloudMove 16s ease-in-out infinite alternate}
+  @keyframes cloudMove{to{background-position:100% 45%}}
+  /* ---------- Estilo 19: Lava ---------- */
+  :root[data-estilo="19"]{
+    --bg:radial-gradient(circle at 20% 15%,#ffbc3c 0%,transparent 18%),radial-gradient(circle at 80% 80%,#e43c1c 0%,transparent 30%),#260709;--card:rgba(49,8,10,.72);--card-border:1px solid rgba(255,157,54,.55);--card-shadow:0 0 50px -8px rgba(255,63,20,.52);--blur:8px;--text:#fff0d3;--muted:#f0b48b;--accent:#ffb02e;--accent2:#ed4e20;--on-accent:#381006;--taunt:#ffe16c;--f-title:'Space Grotesk',sans-serif;--r-card:16px;--p-color:#ffb02e;--p-op:.55;
+  }
+  :root[data-estilo="19"] body{background:var(--bg);background-size:150% 150%;animation:lavaMove 7s ease-in-out infinite alternate}
+  @keyframes lavaMove{to{background-position:90% 100%}}
+  /* ---------- Estilo 20: Caramelo ---------- */
+  :root[data-estilo="20"]{
+    --bg:linear-gradient(135deg,#ff9fc8,#ffc6e1 28%,#bba1ff 55%,#8eddfa 78%,#ff9fc8);--card:rgba(255,255,255,.56);--card-border:2px solid rgba(255,255,255,.68);--card-shadow:0 28px 58px -19px rgba(133,70,164,.38);--blur:13px;--text:#5a286c;--muted:#835c96;--accent:#ff5599;--accent2:#a36cf4;--on-accent:#fff;--taunt:#8d51be;--f-title:'Quicksand',sans-serif;--r-card:36px;--r-btn:18px;--p-color:#fff;--p-op:.72;
+  }
+  :root[data-estilo="20"] body{background:var(--bg);background-size:260% 260%;animation:candyMove 10s ease infinite}
+  @keyframes candyMove{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+
   *{ box-sizing: border-box; }
 
   html{
@@ -307,7 +369,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
     inset: 0;
     pointer-events: none;
     overflow: hidden;
-    z-index: 0;
+    z-index: 1;
   }
   .particles span{
     position: absolute;
@@ -324,7 +386,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
 
   .card{
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
     max-width: 560px;
     background: var(--card);
@@ -425,6 +487,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
     animation: enter .45s ease both;
   }
   .panel.hidden{ display: none; }
+  .hidden{ display: none !important; }
 
   label{
     display: block;
@@ -457,6 +520,18 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
     color: var(--muted);
     text-align: center;
   }
+  .formulario-dinamico{ margin-top:28px; text-align:left; }
+  .field{ margin-bottom:18px; }
+  .field label{ margin-bottom:7px; }
+  .field-help{ display:block; color:var(--muted); font-size:13px; margin:-2px 0 7px; }
+  select{ width:100%; appearance:auto; background:color-mix(in srgb, var(--text) 6%, var(--card)); border:1.5px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius:calc(var(--r-btn) * .6 + 4px); padding:13px 15px; color:var(--text); font:inherit; font-size:16px; color-scheme:dark; }
+  option, optgroup{ background:var(--card); color:var(--text); font-family:var(--f-body); }
+  option:checked{ background:var(--accent); color:var(--on-accent); }
+  :root[data-estilo="3"] select, :root[data-estilo="5"] select, :root[data-estilo="9"] select, :root[data-estilo="12"] select, :root[data-estilo="18"] select, :root[data-estilo="20"] select{ color-scheme:light; }
+  .checks{ display:grid; gap:9px; }
+  .checks label{ display:flex; align-items:center; gap:9px; font-weight:500; margin:0; }
+  .checks input{ width:auto; margin:0; accent-color:var(--accent); }
+  .required{ color:var(--accent); }
 
   @media (max-width: 480px){
     .card{ padding: 44px 22px 32px; }
@@ -464,7 +539,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
     .btn{ min-width: 0; padding: 15px 26px; font-size: 16px; }
   }
   @media (prefers-reduced-motion: reduce){
-    .particles{ display: none; }
+    .particles span{ animation-duration: 24s; }
     .card, .panel{ animation: none; }
     .btn, .btn-no{ transition: none; }
   }
@@ -478,25 +553,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
   <div class="card">
     <h1 id="pregunta">¿Quieres mucho a FLO?</h1>
     <p class="subtext" id="subtexto"></p>
-
-    <div class="choice-row" id="choiceRow">
-      <button class="btn btn-primary btn-yes" id="yesBtn" type="button">Sí</button>
-      <button class="btn btn-no" id="noBtn" type="button">No</button>
-    </div>
-    <p class="taunt" id="taunt" aria-live="polite"></p>
-
-    <div class="panel hidden" id="formPanel">
-      <label for="nombre">Tu nombre</label>
-      <input type="text" id="nombre" placeholder="¿Cómo te llamas?" autocomplete="given-name">
-
-      <label for="mensaje">Mensaje (opcional)</label>
-
-      <textarea id="mensaje" rows="3" placeholder="Deja unas palabras..."></textarea>
-
-
-      <button class="btn btn-primary send-btn" id="sendBtn" type="button">Enviar respuesta</button>
-      <p class="confirm" id="confirmMsg" aria-live="polite"></p>
-    </div>
+    <div id="contenido"></div>
   </div>
 </main>
 
@@ -511,6 +568,70 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
   const NO_TXT   = leer('no', 'No', 20);
   const ESTILO   = document.documentElement.dataset.estilo;
 
+  if (DATOS.v === 2) {
+    const config = DATOS;
+    const limpio = (v, max = 180) => String(v || '').trim().slice(0, max);
+    const titulo = limpio(config.p, 180) || '¿Quieres mucho a FLO?';
+    const subtitulo = limpio(config.s, 300);
+    const h1 = $('pregunta'); h1.textContent = '';
+    titulo.split('|').forEach((linea, i) => { if(i) h1.append(document.createElement('br')); h1.append(document.createTextNode(linea.trim())); });
+    $('subtexto').textContent = subtitulo;
+    document.title = titulo.replace(/\|/g, ' ');
+    const destino = $('contenido');
+    const simbolos = {1:'♥',2:'✦',3:'',4:'✦',5:'✎',6:'■',7:'✿',8:'○',9:'●',10:'>',11:'✧',12:'❀',13:'✦',14:'╱',15:'✦',16:'✦',17:'◌',18:'☁',19:'✹',20:'●'};
+    const simbolo = simbolos[ESTILO];
+    if (simbolo) {
+      const particulas=$('particles');
+      for(let i=0;i<16;i++){const x=document.createElement('span');x.textContent=simbolo;x.style.left=Math.random()*100+'%';x.style.animationDelay=(-Math.random()*14)+'s';x.style.animationDuration=(9+Math.random()*9)+'s';x.style.fontSize=(13+Math.random()*21)+'px';particulas.append(x);}
+    }
+    const form = document.createElement('form'); form.className = 'formulario-dinamico'; form.noValidate = true;
+    const campos = Array.isArray(config.f) ? config.f : [];
+    const tipoSeguro = new Set(['text','email','tel','number','date','time','url','textarea','select','radio','checkbox']);
+    campos.forEach((campo, index) => {
+      if (!campo || !tipoSeguro.has(campo.t)) return;
+      const id = 'campo_' + index, nombre = limpio(campo.n, 40).replace(/[^a-zA-Z0-9_-]/g, '_') || id;
+      const caja = document.createElement('div'); caja.className = 'field';
+      const label = document.createElement('label'); label.htmlFor = id; label.textContent = limpio(campo.l, 100) || 'Campo ' + (index + 1);
+      if (campo.r) { const r = document.createElement('span'); r.className='required'; r.textContent=' *'; label.append(r); }
+      caja.append(label);
+      if (campo.h) { const help = document.createElement('small'); help.className='field-help'; help.textContent=limpio(campo.h,200); caja.append(help); }
+      const opciones = Array.isArray(campo.o) ? campo.o.map(x => limpio(x,80)).filter(Boolean) : [];
+      let control;
+      if (campo.t === 'textarea') { control=document.createElement('textarea'); control.rows=Math.min(Math.max(+campo.rows || 3,2),10); }
+      else if (campo.t === 'select') { control=document.createElement('select'); const first=document.createElement('option'); first.value=''; first.textContent=limpio(campo.ph,100)||'Selecciona una opción'; first.disabled=true; first.selected=true; control.append(first); opciones.forEach(op=>{const x=document.createElement('option');x.value=op;x.textContent=op;control.append(x);}); }
+      else if (campo.t === 'radio' || campo.t === 'checkbox') {
+        control=document.createElement('div'); control.className='checks'; control.setAttribute('role', campo.t === 'radio' ? 'radiogroup':'group');
+        opciones.forEach((op,j)=>{const l=document.createElement('label'), i=document.createElement('input'); i.type=campo.t; i.name=nombre; i.value=op; i.id=id+'_'+j; if(campo.r && campo.t === 'radio') i.required=true; l.htmlFor=i.id; l.append(i,document.createTextNode(op));control.append(l);});
+        if (campo.r && campo.t === 'checkbox') control.dataset.requiredCheckboxGroup = 'true';
+      } else { control=document.createElement('input'); control.type=campo.t; }
+      if (campo.t !== 'radio' && campo.t !== 'checkbox') { control.id=id; control.name=nombre; control.required=!!campo.r; control.placeholder=limpio(campo.ph,120); if(campo.t==='number'){control.step=campo.step || 'any';} ['min','max','step','minLength','maxLength','pattern'].forEach(a=>{if(campo[a] !== undefined && campo[a] !== '') control[a]=campo[a];}); }
+      caja.append(control); form.append(caja);
+    });
+    const send = document.createElement('button'); send.className='btn btn-primary send-btn'; send.type='submit'; send.textContent=limpio(config.b,60)||'Enviar respuesta'; form.append(send);
+    const confirm = document.createElement('p'); confirm.className='confirm'; confirm.setAttribute('aria-live','polite'); form.append(confirm);
+    if (config.m !== 'form') {
+      form.classList.add('hidden');
+      const row=document.createElement('div'); row.className='choice-row';
+      const yes=document.createElement('button'); yes.className='btn btn-primary btn-yes'; yes.type='button'; yes.textContent=limpio(config.y,40)||'Sí';
+      const no=document.createElement('button'); no.className='btn btn-no'; no.type='button'; no.textContent=limpio(config.n,40)||'No';
+      const taunt=document.createElement('p'); taunt.className='taunt'; row.append(yes,no); destino.append(row,taunt,form);
+      let turns=0; const move=()=>{turns++; yes.style.setProperty('--grow',Math.min(1+turns*.04,1.3)); no.style.transform='translate('+(Math.random()*120-60)+'px,'+(Math.random()*70-25)+'px)'; taunt.textContent=['Casi...','No tan rápido','Prueba con el otro'][turns%3];};
+      ['mouseenter','focus','click'].forEach(ev=>no.addEventListener(ev,move)); no.addEventListener('touchstart',e=>{e.preventDefault();move()},{passive:false});
+      yes.addEventListener('click',()=>{form.classList.remove('hidden');form.scrollIntoView({behavior:'smooth',block:'center'});form.querySelector('input,textarea,select')?.focus({preventScroll:true});});
+    } else destino.append(form);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const grupoIncompleto = [...form.querySelectorAll('[data-required-checkbox-group]')].some(g => !g.querySelector('input:checked'));
+      if (grupoIncompleto) { confirm.textContent='Selecciona al menos una opción en los campos obligatorios.'; return; }
+      if(!form.reportValidity()) return;
+      const datos = Object.fromEntries(new FormData(form).entries());
+      send.disabled=true; send.textContent='Enviando...'; confirm.textContent='';
+      try { const res=await fetch('https://formsubmit.co/ajax/raulperez22007@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({...datos,_subject:'Nueva respuesta: '+titulo.replace(/\|/g,' '),_template:'table',_captcha:'false'})}); const data=await res.json().catch(()=>({})); if(!res.ok || String(data.success)!=='true') throw Error(); form.reset(); confirm.textContent=limpio(config.ok,160)||'¡Gracias! Tu respuesta se ha enviado.'; send.textContent='Enviado'; }
+      catch { confirm.textContent='No se ha podido enviar. Revisa tu conexión e inténtalo de nuevo.'; send.disabled=false; send.textContent=limpio(config.b,60)||'Enviar respuesta'; }
+    });
+  } else {
+    $('contenido').innerHTML = '<div class="choice-row" id="choiceRow"><button class="btn btn-primary btn-yes" id="yesBtn" type="button">Sí</button><button class="btn btn-no" id="noBtn" type="button">No</button></div><p class="taunt" id="taunt" aria-live="polite"></p><div class="panel hidden" id="formPanel"><label for="nombre">Tu nombre</label><input type="text" id="nombre" placeholder="¿Cómo te llamas?" autocomplete="given-name"><label for="mensaje">Mensaje (opcional)</label><textarea id="mensaje" rows="3" placeholder="Deja unas palabras..."></textarea><button class="btn btn-primary send-btn" id="sendBtn" type="button">Enviar respuesta</button><p class="confirm" id="confirmMsg" aria-live="polite"></p></div>';
+
   // Siempre textContent (nunca innerHTML): el texto viene de la URL.
   const h1 = $('pregunta');
   h1.textContent = '';
@@ -524,7 +645,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
   document.title = PREGUNTA.replace(/\|/g, ' ');
 
   // Partículas de fondo (cada estilo tiene su símbolo; el 3 no lleva)
-  const SIMBOLOS = { 1: '♥', 2: '✦', 3: '', 4: '✦', 5: '✎', 6: '■', 7: '✿', 8: '○', 9: '●', 10: '>' };
+  const SIMBOLOS = { 1: '♥', 2: '✦', 3: '', 4: '✦', 5: '✎', 6: '■', 7: '✿', 8: '○', 9: '●', 10: '>', 11:'✧', 12:'❀', 13:'✦', 14:'╱', 15:'✦', 16:'✦', 17:'◌', 18:'☁', 19:'✹', 20:'●' };
   const simbolo = SIMBOLOS[ESTILO];
   if (simbolo) {
     const cont = $('particles');
@@ -627,6 +748,7 @@ document.documentElement.dataset.estilo = /^([1-9]|10)$/.test(String(DATOS.estil
       sendBtn.textContent = 'Enviar respuesta';
     }
   });
+  }
 </script>
 
 </body>

@@ -1,4 +1,8 @@
-# Página de pregunta
+# Página de pregunta y constructor de formularios
+
+Además de la pregunta clásica, `/admin` permite crear formularios completos con campos de texto, email, teléfono, número, fecha, hora, URL, áreas de texto, selects, radios y casillas. Cada campo puede tener etiqueta, nombre técnico, texto de ayuda, placeholder, opciones y ser obligatorio. Se puede reordenar, eliminar y previsualizar.
+
+Los enlaces nuevos usan una configuración `v:2` comprimida y ofuscada, y los enlaces antiguos siguen funcionando. La compresión reduce bastante el tamaño, pero ningún sitio estático puede convertir una configuración enorme en una URL corta universal sin guardar esos datos en algún servidor. Para enlaces cortos compartibles habría que añadir un backend o servicio de short links con almacenamiento.
 
 Página de un solo archivo (`index.html`, sin dependencias ni build) que hace una pregunta con dos botones: **Sí** y **No**. El botón **No** huye cuando intentas pulsarlo, y al pulsar **Sí** aparece un formulario cuya respuesta te llega por correo.
 
